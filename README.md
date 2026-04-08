@@ -1,30 +1,137 @@
-# Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased Scene Graph Generation in Pytorch
+# [CVPR22] Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased Scene Graph Generation in Pytorch
 
-[![LICENSE](https://img.shields.io/badge/license-MIT-green)](https://github.com/dongxingning/SHA_GCL_for_SGG/blob/master/LICENSE)
-[![Python](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/)
-![PyTorch](https://img.shields.io/badge/pytorch-1.6.0-%237732a8)
+> Official PyTorch implementation of the CVPR 2022 paper "Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased Scene Graph Generation".
 
-This repository contains the code for our paper [Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased
-Scene Graph Generation](http://arxiv.org/abs/2203.09811), which has been accepted by CVPR 2022.
+  <p>
+    <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-EE4C2C?&logo=pytorch&logoColor=white"></a>
+    <img src="https://img.shields.io/badge/python-3.6-blue.svg" alt="Python">
+  </p>
+
+## Authors
+
+**Xingning Dong**<sup>1</sup>, **Tian Gan**<sup>1</sup>\*, **Xuemeng Song**<sup>1</sup>, **Jianlong Wu**<sup>1</sup>, **Yuan Cheng**<sup>2</sup>, **Liqiang Nie**<sup>1</sup>
+
+<sup>1</sup> `Shandong University`  
+<sup>2</sup> `Ant Group`  
+\* Corresponding author / Contact: dongxingning1998@gmail.com
+
+## Links
+
+- **Paper**: [arXiv Link](http://arxiv.org/abs/2203.09811)
+- **Code Repository**: [GitHub](https://github.com/dongxingning/SHA_GCL_for_SGG)
+
+---
+
+## Table of Contents
+
+- [Updates](#updates)
+- [Introduction](#introduction)
+- [Highlights](#highlights)
+- [Method / Framework](#method--framework)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Checkpoints / Models](#checkpoints--models)
+- [Dataset / Benchmark](#dataset--benchmark)
+- [Usage](#usage)
+- [Citation](#citation)
+- [Acknowledgement](#acknowledgement)
+- [License](#license)
+
+---
+
+## Updates
+
+- [03/2022] Initial release and paper accepted by CVPR 2022.
+
+---
+
+## Introduction
+
+This repository is the official implementation of the paper **Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased Scene Graph Generation**.
+
+Our method addresses the unbiased Scene Graph Generation (SGG) problem by introducing Stacked Hybrid-Attention and a Group Collaborative Learning (GCL) strategy. This codebase provides the official implementation, pretrained object detector checkpoints, and evaluation scripts for the Visual Genome (VG) and GQA datasets.
+
+---
+
+## Highlights
+
+- **Multi-Dataset Support**: Full compatibility with Visual Genome (VG) and GQA.
+- **Task Coverage**: Supports PredCls (Predicate Classification), SGCls (Scene Graph Classification), and SGDet (Scene Graph Detection).
+- **Flexible Predictors**: Includes various models such as TransLike, MotifsLike, and VCTree, alongside our GCL decoder versions.
+- **Modular Encoders**: Easily switch between Self-Attention, Cross-Attention, Hybrid-Attention, Motifs, and VTransE.
+
+---
+
+## Method / Framework
+
+![Framework](/assets/framework.png)
+**Figure 1.** The framework of the common pipeline in SGG, which includes five key components. Notably, we improve three key components marked in red in the figure. Specifically, we propose the Stacked Hybrid-Attention network to enhance the object encoder and the relation encoder, and we also devise the Group Collaborative Learning strategy to guide the training of the relation decoder.
+
+![Framework](/assets/gcl.png)
+**Figure 2.** Illustration of the proposed Group Collaborative Learning (GCL) strategy, which includes five key steps. It is worth noting that we design two optimization mechanisms, namely Parallel Classifier Optimization (PCO) and Collaborative Knowledge Distillation (CKD), to jointly guide the training of the relation decoder.
+
+
+---
+
+## Project Structure
+
+```text
+.
+├── configs/               # Configuration files (e.g., SHA_GCL_e2e_relation_X_101_32_8_FPN_1x.yaml)
+├── datasets/              # Dataset directories (VG, GQA)
+├── SHA_GCL_extra/         # Helper scripts for dataset paths and Group splits
+├── tools/                 # Training and evaluation entry points
+├── maskrcnn_benchmark/    # Core source code and configuration defaults
+├── README.md
+├── INSTALL.md             # Detailed installation guide
+├── DATASET.md             # Detailed dataset preprocessing guide
+└── LICENSE
+```
+
+---
+
 
 ## Installation
 
-Check [INSTALL.md](INSTALL.md) for installation instructions, the recommended configuration is cuda-10.1 & pytorch-1.6.  
+We recommend configuring the environment with **CUDA 10.1** & **PyTorch 1.6.0**.
 
-## Dataset
+### 1\. Clone the repository
 
-Check [DATASET.md](DATASET.md) for instructions of dataset preprocessing (VG & GQA).
-
-## Pretrained Models
-
-For VG dataset, the pretrained object detector we used is provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), you can download it from [this link](https://1drv.ms/u/s!AjK8-t5JiDT1kxT9s3JwIpoGz4cA?e=usU6TR). For GQA dataset, we pretrained a new object detector, you can get it from [this link](https://1drv.ms/u/s!AjK8-t5JiDT1kxBfihou2smfXFV9?e=VtyoR7). However, we recommend you to pretrain a new one on GQA since we do not pretrain it for multiple times to choose the best pre-trained model for extracting offline region-level features.
-
-## Perform training on Scene Graph Generation
-
-### Set the dataset path
-
-First, please refer to the ```SHA_GCL_extra/dataset_path.py``` and set the ```datasets_path``` to be your dataset path, and organize all the files like this:
 ```bash
+git clone [https://github.com/dongxingning/SHA_GCL_for_SGG.git](https://github.com/dongxingning/SHA_GCL_for_SGG.git)
+cd SHA_GCL_for_SGG
+```
+
+### 2\. Detailed Installation
+
+Please check [INSTALL.md](https://www.google.com/search?q=INSTALL.md) for step-by-step installation instructions.
+
+-----
+
+## Checkpoints / Models
+
+We provide pretrained object detectors and trained SGG models for quick reproduction:
+
+### Object Detectors
+
+  - **VG Dataset**: Pretrained object detector provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch). [Download Link](https://1drv.ms/u/s!AjK8-t5JiDT1kxT9s3JwIpoGz4cA?e=usU6TR)
+  - **GQA Dataset**: Pretrained object detector for GQA. [Download Link](https://1drv.ms/u/s!AjK8-t5JiDT1kxBfihou2smfXFV9?e=VtyoR7) *(Note: We recommend pretraining a new one on GQA for optimal region-level feature extraction).*
+
+### Trained SGG Models
+
+  - **SHA\_GCL\_VG\_PredCls**: [Download Link](https://1drv.ms/u/s!AjK8-t5JiDT1kxI8NkjiMUWBRnWd?e=w5zuBh)
+
+If you want to get more trained models mentioned in our paper, please email `dongxingning1998@gmail.com`.
+
+-----
+
+## Dataset / Benchmark
+
+Please check [DATASET.md](https://www.google.com/search?q=DATASET.md) for instructions on dataset preprocessing (VG & GQA).
+
+First, please refer to `SHA_GCL_extra/dataset_path.py` and set the `datasets_path` to your dataset path. Organize all the files like this:
+
+```text
 datasets
   |-- vg
     |--detector_model
@@ -47,93 +154,59 @@ datasets
     |--GQA_200_Test.json
 ```
 
-### Choose a dataset
+-----
 
-You can choose the training/testing dataset by setting the following parameter:
-``` bash
-GLOBAL_SETTING.DATASET_CHOICE 'VG'  #['VG', 'GQA']
-```
+## Usage
 
-### Choose a task
+### Configuration Setup
 
-To comprehensively evaluate the performance, we follow three conventional tasks: 1) **Predicate Classification (PredCls)** predicts the relationships of all the pairwise objects by employing the given ground-truth bounding boxes and classes; 2) **Scene Graph Classification (SGCls)** predicts the objects classes and their pairwise relationships by employing the given ground-truth object bounding boxes; and 3) **Scene Graph Detection (SGDet)** detects all the objects in an image, and predicts their bounding boxes, classes, and pairwise relationships.
+You can configure the training/testing behavior via command line parameters or in `configs/SHA_GCL_e2e_relation_X_101_32_8_FPN_1x.yaml` (and `maskrcnn_benchmark/config/defaults.py`). The priority is `command > yaml > defaults.py`.
 
-For **Predicate Classification (PredCls)**, you need to set:
-``` bash
-MODEL.ROI_RELATION_HEAD.USE_GT_BOX True MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True
-```
-For **Scene Graph Classification (SGCls)**:
-``` bash
-MODEL.ROI_RELATION_HEAD.USE_GT_BOX True MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL False
-```
-For **Scene Graph Detection (SGDet)**:
-``` bash
-MODEL.ROI_RELATION_HEAD.USE_GT_BOX False MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL False
-```
+  - **Dataset**: `GLOBAL_SETTING.DATASET_CHOICE 'VG'` or `'GQA'`
+  - **Task**:
+      - **PredCls**: `MODEL.ROI_RELATION_HEAD.USE_GT_BOX True MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True`
+      - **SGCls**: `MODEL.ROI_RELATION_HEAD.USE_GT_BOX True MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL False`
+      - **SGDet**: `MODEL.ROI_RELATION_HEAD.USE_GT_BOX False MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL False`
+  - **Model / Predictor**: `GLOBAL_SETTING.RELATION_PREDICTOR 'TransLike_GCL'`
+      - Options: `"MotifsLikePredictor", "VCTreePredictor", "TransLikePredictor", "MotifsLike_GCL", "VCTree_GCL", "TransLike_GCL"`
+  - **Encoder**: `GLOBAL_SETTING.BASIC_ENCODER 'Hybrid-Attention'`
+      - Options for TransLike: `'Self-Attention', 'Cross-Attention', 'Hybrid-Attention'`
+      - Options for MotifsLike: `'Motifs', 'VTransE'`
+  - **Group Split (GCL only)**: `GLOBAL_SETTING.GCL_SETTING.GROUP_SPLIT_MODE 'divide4'`
+      - Options: `['divide4', 'divide3', 'divide5', 'average']`
+  - **Knowledge Transfer (GCL only)**: `GLOBAL_SETTING.GCL_SETTING.KNOWLEDGE_TRANSFER_MODE 'KL_logit_TopDown'`
+      - Options: `['None', 'KL_logit_Neighbor', 'KL_logit_TopDown', 'KL_logit_BottomUp', 'KL_logit_BiDirection']`
 
-### Choose your model
+### Training
 
-We abstract various SGG models to be different ```relation-head predictors``` in the file ```roi_heads/relation_head/roi_relation_predictors.py```, which are independent of the Faster R-CNN backbone and relation-head feature extractor. You can use ```GLOBAL_SETTING.RELATION_PREDICTOR``` to select one of them:
+**Example 1: (VG, TransLike, Hybrid-Attention, divide4, Topdown, PredCls)**
 
-```bash
-GLOBAL_SETTING.RELATION_PREDICTOR 'TransLike_GCL'
-```
-
-Notice the candidate choice is **"MotifsLikePredictor", "VCTreePredictor", "TransLikePredictor", "MotifsLike_GCL", "VCTree_GCL", "TransLike_GCL"**. The last three are with our GCL decoder.
-
-The default settings are under ```configs/SHA_GCL_e2e_relation_X_101_32_8_FPN_1x.yaml``` and ```maskrcnn_benchmark/config/defaults.py```. The priority is ```command > yaml > defaults.py```.
-
-### Choose your Encoder (For "MotifsLike" and "TransLike")
-
-You need to further choose an object/relation encoder for "MotifsLike" or "TransLike" predictor, by setting the following parameter:
-
-```bash
-GLOBAL_SETTING.BASIC_ENCODER 'Hybrid-Attention'
-```
-
-Notice the candidate choice is **'Self-Attention', 'Cross-Attention', 'Hybrid-Attention'** for TransLike Model, and **'Motifs', 'VTransE'** for MotifsLike Model.
-
-### Choose one group split (for GCL only)
-
-You can change the number of groups when using our GCL decoder, by setting the following parameter:
-
-```bash
-GLOBAL_SETTING.GCL_SETTING.GROUP_SPLIT_MODE 'divide4' # ['divide4', ''divide3', 'divide5', 'average']
-```
-
-For VG dataset, 'divide4' (5 groups), 'divide3' (6 groups), 'divide5' (4 groups) and average (5 groups). You can refer ```SHA_GCL_extra/get_your_own_group/get_group_splits.py``` to get your own group divisions.
-
-### Choose the knowledge transfer method (for GCL only)
-
-You can choose the knowledge transfer method by setting the following parameter:
-
-```bash
-GLOBAL_SETTING.GCL_SETTING.KNOWLEDGE_TRANSFER_MODE 'KL_logit_TopDown' # ['None', 'KL_logit_Neighbor', 'KL_logit_TopDown', 'KL_logit_BottomUp', 'KL_logit_BiDirection']
-```
-
-### Examples of the Training Command
-Training Example 1 : (VG, TransLike, Hybrid-Attention, divide4, Topdown, PredCls)
 ```bash
 CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10025 --nproc_per_node=1 tools/relation_train_net.py --config-file "configs/SHA_GCL_e2e_relation_X_101_32_8_FPN_1x.yaml" GLOBAL_SETTING.DATASET_CHOICE 'VG' GLOBAL_SETTING.RELATION_PREDICTOR 'TransLike_GCL' GLOBAL_SETTING.BASIC_ENCODER 'Hybrid-Attention' GLOBAL_SETTING.GCL_SETTING.GROUP_SPLIT_MODE 'divide4' GLOBAL_SETTING.GCL_SETTING.KNOWLEDGE_TRANSFER_MODE 'KL_logit_TopDown' MODEL.ROI_RELATION_HEAD.USE_GT_BOX True MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True SOLVER.IMS_PER_BATCH 8 TEST.IMS_PER_BATCH 8 DTYPE "float16" SOLVER.MAX_ITER 60000 SOLVER.VAL_PERIOD 5000 SOLVER.CHECKPOINT_PERIOD 5000 GLOVE_DIR /home/share/datasets/vg/glove OUTPUT_DIR /home/share/datasets/output/SHA_GCL_VG_PredCls_test
 ```
 
-Training Example 2 : (GQA_200, MotifsLike, Motifs, divide4, Topdown, SGCls)
+**Example 2: (GQA\_200, MotifsLike, Motifs, divide4, Topdown, SGCls)**
+
 ```bash
 CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10025 --nproc_per_node=1 tools/relation_train_net.py --config-file "configs/SHA_GCL_e2e_relation_X_101_32_8_FPN_1x.yaml" GLOBAL_SETTING.DATASET_CHOICE 'GQA_200' GLOBAL_SETTING.RELATION_PREDICTOR 'MotifsLike_GCL' GLOBAL_SETTING.BASIC_ENCODER 'Motifs' GLOBAL_SETTING.GCL_SETTING.GROUP_SPLIT_MODE 'divide4' GLOBAL_SETTING.GCL_SETTING.KNOWLEDGE_TRANSFER_MODE 'KL_logit_TopDown' MODEL.ROI_RELATION_HEAD.USE_GT_BOX True MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL False SOLVER.IMS_PER_BATCH 8 TEST.IMS_PER_BATCH 1 DTYPE "float16" SOLVER.MAX_ITER 60000 SOLVER.VAL_PERIOD 5000 SOLVER.CHECKPOINT_PERIOD 5000 GLOVE_DIR /home/share/datasets/vg/glove OUTPUT_DIR /home/share/datasets/output/Motifs_GCL_GQA_SGCls_test
 ```
 
-## Evaluation
+### Evaluation
 
-You can download our training model (SHA_GCL_VG_PredCls) from [this link](https://1drv.ms/u/s!AjK8-t5JiDT1kxI8NkjiMUWBRnWd?e=w5zuBh). You can evaluate it by running the following command.
+You can evaluate the trained model by running the following command:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10025 --nproc_per_node=1 tools/relation_test_net.py --config-file "configs/SHA_GCL_e2e_relation_X_101_32_8_FPN_1x.yaml" GLOBAL_SETTING.DATASET_CHOICE 'VG' GLOBAL_SETTING.RELATION_PREDICTOR 'TransLike_GCL' GLOBAL_SETTING.BASIC_ENCODER 'Hybrid-Attention' GLOBAL_SETTING.GCL_SETTING.GROUP_SPLIT_MODE 'divide4' GLOBAL_SETTING.GCL_SETTING.KNOWLEDGE_TRANSFER_MODE 'KL_logit_TopDown' MODEL.ROI_RELATION_HEAD.USE_GT_BOX True MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True TEST.IMS_PER_BATCH 8 DTYPE "float16" GLOVE_DIR /home/share/datasets/vg/glove OUTPUT_DIR /home/share/datasets/output/SHA_GCL_VG_PredCls_test
 ```
 
-If you want to get more training models in our paper, please email me at ```dongxingning1998@gmail.com```.
+-----
+
 
 ## Citation
-```bash
+
+If you find this project useful for your research, please consider citing our paper:
+
+```bibtex
 @inproceedings{dong2022stacked,
   title={Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased Scene Graph Generation},
   author={Dong, Xingning and Gan, Tian and Song, Xuemeng and Wu, Jianlong and Cheng, Yuan and Nie, Liqiang},
@@ -143,8 +216,16 @@ If you want to get more training models in our paper, please email me at ```dong
 }
 ```
 
-We welcome you to commit issue or contact us (E-mail: ```dongxingning1998@gmail.com```) if you have any problem when reading the paper or reproducing the code.
+---
 
-## Acknowledgment
+## Acknowledgement
 
-Our code is on top of [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), we sincerely thank them for their well-designed codebase.
+  - Our codebase is built on top of [Scene-Graph-Benchmark.pytorch](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch). We sincerely thank them for their well-designed codebase.
+  - We welcome you to submit an issue or contact us if you have any problems when reading the paper or reproducing the code.
+
+---
+
+## License
+
+This project is released under the [MIT License](https://github.com/dongxingning/SHA_GCL_for_SGG/blob/master/LICENSE).
+
